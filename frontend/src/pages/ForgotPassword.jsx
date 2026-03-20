@@ -3,6 +3,7 @@ import React from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { serverUrl } from "../App";
+import { ClipLoader } from "react-spinners";
 // import { set } from "mongoose";
 
 //flex item-center items-center justify-center min-h-screen
@@ -14,9 +15,11 @@ function ForgotPassword() {
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
   const navigate = useNavigate();
 
   const handleSendOtp = async () => {
+    setLoading(true);
     try {
       const result = await axios.post(
         `${serverUrl}/api/auth/send-otp`,
@@ -28,15 +31,18 @@ function ForgotPassword() {
       console.log(result);
       setError("");
       setStep(2);
+      setLoading(false);
     } catch (error) {
       setError(
         `*${error?.response?.data?.message}` ||
           "An error occurred during sign up",
       );
+      setLoading(false);
     }
   };
 
   const handleVerifyOtp = async () => {
+    setLoading(true);
     try {
       const result = await axios.post(
         `${serverUrl}/api/auth/verify-otp`,
@@ -49,11 +55,13 @@ function ForgotPassword() {
       console.log(result);
       setError("");
       setStep(3);
+      setLoading(false);
     } catch (error) {
       setError(
         `*${error?.response?.data?.message}` ||
           "An error occurred during sign up",
       );
+      setLoading(false);
     }
   };
 
@@ -62,6 +70,7 @@ function ForgotPassword() {
       alert("Password and confirm password does not match");
       return;
     }
+    setLoading(true);
     try {
       const result = await axios.post(
         `${serverUrl}/api/auth/reset-password`,
@@ -73,12 +82,14 @@ function ForgotPassword() {
       );
       console.log(result);
       setError("");
+      setLoading(false);
       navigate("/signin");
     } catch (error) {
       setError(
         `*${error?.response?.data?.message}` ||
           "An error occurred during sign up",
       );
+      setLoading(false);
     }
   };
 
@@ -119,8 +130,9 @@ function ForgotPassword() {
             <button
               className={`w-full max-w-md mt-6 py-2 rounded-lg bg-[#ff4d2d] text-white font-medium transition-colors hover:bg-[#e64323] cursor-pointer`}
               onClick={handleSendOtp}
+              disabled={loading}
             >
-              Send Otp
+              {loading ? <ClipLoader size={20} color="White" /> : "Send Otp"}
             </button>
             <p className="text-red-500 text-center text-sm my-[10px] mt-2">
               {error}
@@ -148,8 +160,9 @@ function ForgotPassword() {
             <button
               className={`w-full max-w-md mt-6 py-2 rounded-lg bg-[#ff4d2d] text-white font-medium transition-colors hover:bg-[#e64323] cursor-pointer`}
               onClick={handleVerifyOtp}
+              disabled={loading}
             >
-              Verify OTP
+              {loading ? <ClipLoader size={20} color="White" /> : "Verify OTP"}
             </button>
             <p className="text-red-500 text-center text-sm my-[10px] mt-2">
               {error}
@@ -192,8 +205,13 @@ function ForgotPassword() {
             <button
               className={`w-full max-w-md mt-6 py-2 rounded-lg bg-[#ff4d2d] text-white font-medium transition-colors hover:bg-[#e64323] cursor-pointer`}
               onClick={handleResetPassword}
+              disabled={loading}
             >
-              Reset password
+              {loading ? (
+                <ClipLoader size={20} color="White" />
+              ) : (
+                "Reset Password"
+              )}
             </button>
             <p className="text-red-500 text-center text-sm my-[10px] mt-2">
               {error}

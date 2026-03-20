@@ -5,6 +5,7 @@ import connectDb from "./config/db.js";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.routes.js";
 import cors from "cors";
+import userRouter from "./routes/user.routes.js";
 //cors used to connect fnd and bnd
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRouter); //adds this before each route
+app.use("/api/user", userRouter);
 
 app.listen(port, () => {
   connectDb();

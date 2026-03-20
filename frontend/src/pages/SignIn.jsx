@@ -2,12 +2,14 @@ import React from "react";
 import { LuEye } from "react-icons/lu";
 import { LuEyeOff } from "react-icons/lu";
 import { FcGoogle } from "react-icons/fc";
-import { use } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { serverUrl } from "../App";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase";
+import { ClipLoader } from "react-spinners";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/user.slice";
 
 function SignIn() {
   const primaryColor = "#ff4d2d";
@@ -19,8 +21,11 @@ function SignIn() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const dispatch = useDispatch();
 
   const handleSignIn = async () => {
+    setLoading(true);
     try {
       const result = await axios.post(
         `${serverUrl}/api/auth/signin`,
@@ -32,12 +37,15 @@ function SignIn() {
           withCredentials: true,
         },
       );
-      console.log(result);
+      dispatch(setUserData(result.data));
       setError("");
+      setLoading(false);
     } catch (error) {
       setError(
-        `*${error?.response?.data?.message}` || "An error occurred during sign in",
+        `*${error?.response?.data?.message}` ||
+          "An error occurred during sign in",
       );
+      setLoading(false);
     }
   };
   const handleGoogleaAuth = async () => {
@@ -52,7 +60,7 @@ function SignIn() {
         },
         { withCredentials: true },
       );
-      console.log(data);
+      dispatch(setUserData(data));
     } catch (error) {
       console.error("Google authentication error:", error);
     }
@@ -132,8 +140,9 @@ function SignIn() {
         <button
           className={`w-full max-w-md mt-6 py-2 rounded-lg bg-[#ff4d2d] text-white font-medium transition-colors hover:bg-[#e64323] cursor-pointer`}
           onClick={handleSignIn}
+          disabled={loading}
         >
-          Sign In
+          {loading ? <ClipLoader size={20} color="White" /> : "Sign In"}
         </button>
         <p className="text-red-500 text-center text-sm my-[10px] mt-2">
           {error}

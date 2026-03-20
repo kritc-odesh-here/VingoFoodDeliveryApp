@@ -8,6 +8,8 @@ import axios from "axios";
 import { serverUrl } from "../App";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase";
+import { ClipLoader } from "react-spinners";
+import { useDispatch } from "react-redux";
 
 function SignUp() {
   const primaryColor = "#ff4d2d";
@@ -22,8 +24,11 @@ function SignUp() {
   const [mobile, setMobile] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const dispatch = useDispatch();
 
   const handleSignUp = async () => {
+    setLoading(true);
     try {
       const result = await axios.post(
         `${serverUrl}/api/auth/signup`,
@@ -38,13 +43,15 @@ function SignUp() {
           withCredentials: true,
         },
       );
-      console.log(result);
+      dispatch(setUserData(result.data));
       setError("");
+      setLoading(false);
     } catch (error) {
       setError(
         `*${error?.response?.data?.message}` ||
           "An error occurred during sign up",
       );
+      setLoading(false);
     }
   };
 
@@ -68,7 +75,7 @@ function SignUp() {
         },
         { withCredentials: true },
       );
-      console.log(data);
+      dispatch(setUserData(data));
     } catch (error) {
       console.log("google auth error", error);
     }
@@ -204,8 +211,9 @@ function SignUp() {
         <button
           className={`w-full max-w-md mt-6 py-2 rounded-lg bg-[#ff4d2d] text-white font-medium transition-colors hover:bg-[#e64323] cursor-pointer`}
           onClick={handleSignUp}
+          disabled={loading}
         >
-          Sign Up
+          {loading ? <ClipLoader size={20} color="White" /> : "Sign Up"}
         </button>
         <p className="text-red-500 text-center text-sm my-[10px] mt-2">
           {error}
